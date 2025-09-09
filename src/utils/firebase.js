@@ -1,5 +1,8 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
+import { getFirestore, collection, setDoc, doc, getDocs} from 'firebase/firestore'
+
+const TASKS_COLLECTION = 'tasks'
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,6 +15,7 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 export const auth = getAuth(app);
 
 export function login(email, password){
@@ -20,4 +24,15 @@ export function login(email, password){
 
 export function register(email, password){
     return createUserWithEmailAndPassword(auth, email, password);
+}
+
+export async function addTaskToFirebase(task) {
+    const ref = doc(db, TASKS_COLLECTION, task.id);
+    await setDoc(ref, task);
+}
+
+export async function getTasksFromFirebase() {
+    const ref = collection(db, TASKS_COLLECTION);
+    const snapshot = await getDocs(ref);
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id}));
 }

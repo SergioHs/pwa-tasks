@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from "uuid"
 import { addTask, getTasks } from './utils/db'
 import { useAuth } from './contexts/AuthContext'
+import { syncTasks } from './utils/sync'
 import './App.css'
 
 function App() {
@@ -21,28 +22,51 @@ function App() {
 
   useEffect(() => {
     loadTasks();
-  })
+    if(navigator.onLine){
+      syncAndReload();
+    }
+    window.addEventListener('online', syncAndReload);
+    window.addEventListener('offline', loadTasks);
+    return () => {
+      window.removeEventListener('online', syncAndReload);
+      window.removeEventListener('offline', loadTasks);
+    }
+
+  }, [])
+
+  async function syncAndReload() {
+    await syncTasks();
+    await loadTasks();
+  }
 
   async function handleAdd() {
+
+    console.log('handleAdd')
     const task = {
       id: uuidv4(),
       title, 
       hora,
       done,
-      lastUpdated: Date.now()
+      lastUpdated: Date.now(),
+      synced: false
     }
     await addTask(task);
     setTitle("")
     setHora("")
     setDone(false)
+    await loadTasks();
+    if(navigator.onLine){
+      await syncAndReload();
+    }
   }
 
   async function loadTasks() {
     const allTasks = await getTasks();
+    allTasks.sort((a, b) => b.lastUpdated - a.lastUpdated)
     setTasks(allTasks);
   }
   
-  return (
+return (
     <div className="main-container">
       <button className="logout-btn" onClick={handleLogout}>Logout</button>
       <h1 style={{ textAlign: 'center', marginBottom: 24 }}>Minhas tarefas</h1>
@@ -75,6 +99,11 @@ function App() {
             <div style={{ color: '#888', fontSize: '0.95em' }}>{t.hora || ""}</div>
             <div style={{ marginTop: 8 }}>
               {t.done ? <span style={{ color: '#70ec85', fontWeight: 'bold' }}>Concluída</span> : <span style={{ color: '#ff5252', fontWeight: 'bold' }}>Não concluída</span>}
+              {!t.synced && (
+                <span style={{ color: '#ffd600', fontWeight: 'bold', marginLeft: 12, border: '1px solid #ffd600', borderRadius: 4, padding: '2px 6px', fontSize: '0.85em' }}>
+                  Não sincronizada
+                </span>
+              )}
             </div>
           </li>
         ))}

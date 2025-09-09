@@ -15,7 +15,7 @@ export async function initDB() {
 
 export async function addTask(task) {
     const db = await initDB();
-    await db.add(STORE_NAME, task);
+    await db.put(STORE_NAME, task);
 }
 
 export async function getTasks() {
