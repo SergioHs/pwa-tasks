@@ -55,7 +55,30 @@ function App() {
     setHora("")
     setDone(false)
     await loadTasks();
-    if(navigator.onLine){
+
+    let notifyPromise = Promise.resolve();
+    if ("Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification("Nova tarefa criada", {
+          body: `Tarefa: ${task.title}`,
+          icon: "/vite.svg"
+        });
+        notifyPromise = new Promise(res => setTimeout(res, 350));
+      } else if (Notification.permission !== "denied") {
+        notifyPromise = Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            new Notification("Nova tarefa criada", {
+              body: `Tarefa: ${task.title}`,
+              icon: "/vite.svg"
+            });
+            return new Promise(res => setTimeout(res, 350));
+          }
+        });
+      }
+    }
+
+    if (navigator.onLine) {
+      await notifyPromise;
       await syncAndReload();
     }
   }
