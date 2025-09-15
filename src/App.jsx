@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from "uuid"
 import { addTask, getTasks } from './utils/db'
+import { getUserLocation, exportTasksToJson, copyTaskToClipboard, listenTaskByVoice } from './utils/native'
 import { useAuth } from './contexts/AuthContext'
 import { syncTasks } from './utils/sync'
 import './App.css'
@@ -40,15 +41,17 @@ function App() {
   }
 
   async function handleAdd() {
-
     console.log('handleAdd')
+    // Usar função utilitária para localização
+    const location = await getUserLocation();
     const task = {
       id: uuidv4(),
       title, 
       hora,
       done,
       lastUpdated: Date.now(),
-      synced: false
+      synced: false,
+      location // {lat, lng} ou null
     }
     await addTask(task);
     setTitle("")
@@ -115,11 +118,21 @@ return (
         Concluída
       </label>
       <button onClick={handleAdd} className="styled-input" style={{ background: '#70ec85', color: '#213547', fontWeight: 'bold', marginBottom: 18 }}>Adicionar</button>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <button onClick={() => exportTasksToJson(tasks)} className="styled-input" style={{ background: '#2196f3', color: '#fff', fontWeight: 'bold' }}>Exportar JSON</button>
+        <button onClick={handleVoiceAdd} className="styled-input" style={{ background: '#ff9800', color: '#fff', fontWeight: 'bold' }}>Adicionar por voz</button>
+      </div>
       <ul className="task-list">
         {tasks.map(t =>(
           <li className="task-card" key={t.id}>
             <div style={{ fontWeight: 'bold', marginBottom: 6 }}>{t.title}</div>
             <div style={{ color: '#888', fontSize: '0.95em' }}>{t.hora || ""}</div>
+            {t.location && (
+              <div style={{ color: '#2196f3', fontSize: '0.9em', marginTop: 4 }}>
+                <span>Latitude: {t.location.lat?.toFixed(5)}</span><br />
+                <span>Longitude: {t.location.lng?.toFixed(5)}</span>
+              </div>
+            )}
             <div style={{ marginTop: 8 }}>
               {t.done ? <span style={{ color: '#70ec85', fontWeight: 'bold' }}>Concluída</span> : <span style={{ color: '#ff5252', fontWeight: 'bold' }}>Não concluída</span>}
               {!t.synced && (
@@ -127,12 +140,30 @@ return (
                   Não sincronizada
                 </span>
               )}
+              <button onClick={() => copyTaskToClipboard(t)} style={{ marginLeft: 12, fontSize: '0.9em', background: '#eee', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>Copiar</button>
             </div>
           </li>
         ))}
+
       </ul>
     </div>
   )
+  // Adicionar tarefa por voz
+  function handleVoiceAdd() {
+    listenTaskByVoice(
+      (transcript) => {
+        setTitle(transcript);
+        // Foca no input de título se possível
+        setTimeout(() => {
+          const el = document.querySelector('input.styled-input');
+          if (el) el.focus();
+        }, 100);
+      },
+      (err) => {
+        alert('Erro no reconhecimento de voz: ' + err);
+      }
+    );
+  }
 }
 
 export default App
