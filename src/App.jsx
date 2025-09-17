@@ -1,12 +1,4 @@
 import { useEffect, useState } from 'react'
-// Atualiza o badge do app (desktop) usando a Badges API, se suportado
-function updateAppBadge(pendingCount) {
-  if ('setAppBadge' in navigator) {
-    navigator.setAppBadge(pendingCount);
-  } else if ('setExperimentalAppBadge' in navigator) {
-    navigator.setExperimentalAppBadge(pendingCount);
-  }
-}
 import { v4 as uuidv4 } from "uuid"
 import { addTask, getTasks } from './utils/db'
 import { getUserLocation, exportTasksToJson, copyTaskToClipboard, listenTaskByVoice } from './utils/native'
@@ -21,6 +13,15 @@ function App() {
   const [title, setTitle] = useState("");
   const [hora, setHora] = useState("");
   const [done, setDone] = useState(false);
+
+  // Atualiza o badge do app (desktop) usando a Badges API, se suportado
+  function updateAppBadge(pendingCount) {
+    if ('setAppBadge' in navigator) {
+      navigator.setAppBadge(pendingCount);
+    } else if ('setExperimentalAppBadge' in navigator) {
+      navigator.setExperimentalAppBadge(pendingCount);
+    }
+  }
 
   async function handleLogout() {
     try {
