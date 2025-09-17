@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from "uuid"
 import { addTask, getTasks } from './utils/db'
 import { getUserLocation, exportTasksToJson, copyTaskToClipboard, listenTaskByVoice } from './utils/native'
+import { getGoogleCalendarUrl } from './utils/calendar'
 import { useAuth } from './contexts/AuthContext'
 import { syncTasks } from './utils/sync'
 import './App.css'
@@ -140,7 +141,18 @@ return (
                   Não sincronizada
                 </span>
               )}
-              <button onClick={() => copyTaskToClipboard(t)} style={{ marginLeft: 12, fontSize: '0.9em', background: '#eee', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>Copiar</button>
+            </div>
+            <div style={{ marginTop: 6, marginBottom: 2 }}>
+              <button onClick={() => copyTaskToClipboard(t)} style={{ fontSize: '0.9em', background: '#eee', color: '#000', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>Copiar</button>
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <a
+                href={getGoogleCalendarUrl(t)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '0.9em', background: '#4285F4', color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', textDecoration: 'none' }}
+                title="Adicionar ao Google Agenda"
+              >Google Agenda</a>
             </div>
           </li>
         ))}
