@@ -1,4 +1,12 @@
 import { useEffect, useState } from 'react'
+// Atualiza o badge do app (desktop) usando a Badges API, se suportado
+function updateAppBadge(pendingCount) {
+  if ('setAppBadge' in navigator) {
+    navigator.setAppBadge(pendingCount);
+  } else if ('setExperimentalAppBadge' in navigator) {
+    navigator.setExperimentalAppBadge(pendingCount);
+  }
+}
 import { v4 as uuidv4 } from "uuid"
 import { addTask, getTasks } from './utils/db'
 import { getUserLocation, exportTasksToJson, copyTaskToClipboard, listenTaskByVoice } from './utils/native'
@@ -33,8 +41,13 @@ function App() {
       window.removeEventListener('online', syncAndReload);
       window.removeEventListener('offline', loadTasks);
     }
-
   }, [])
+
+  // Atualiza badge sempre que tasks mudam
+  useEffect(() => {
+    const pending = tasks.filter(t => !t.done).length;
+    updateAppBadge(pending);
+  }, [tasks]);
 
   async function syncAndReload() {
     await syncTasks();
