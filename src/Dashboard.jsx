@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { getTasks } from "./utils/db";
 import { Link } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
+import { shareTask } from "./utils/native";
+
+
+async function handleShare(task) {
+    try {
+        await shareTask(task);
+    } catch (err) {
+        alert(err.message || 'Não foi possível compartilhar.');
+    }
+}
 
 function Dashboard() {
     const {currentUser, logout } = useAuth();
@@ -41,8 +51,12 @@ function Dashboard() {
                     <div style={{ fontWeight: 'bold', marginBottom: 6 }}>{t.title}</div>
                     <div style={{ color: '#888', fontSize: '0.95em' }}>{t.hora || ""}</div>
                     <div style={{ marginTop: 8 }}>
-                        <span style={{ color: '#70ec85', fontWeight: 'bold' }}> Concluída</span>
+                        <span style={{ color: '#70ec85', fontWeight: 'bold' }}>� Concluída</span>
                     </div>
+                    <button
+                        style={{ marginTop: 10, background: '#1976d2', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }}
+                        onClick={() => handleShare(t)}
+                    >Compartilhar</button>
                 </li>
                 ))}
             </ul>
