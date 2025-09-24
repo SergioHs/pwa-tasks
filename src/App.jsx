@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 import { addTask, getTasks } from './utils/db'
 import { getUserLocation, exportTasksToJson, copyTaskToClipboard, listenTaskByVoice } from './utils/native'
 import { getGoogleCalendarUrl } from './utils/calendar'
+import { Link } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext'
 import { syncTasks } from './utils/sync'
 import './App.css'
@@ -109,8 +110,15 @@ function App() {
   
 return (
     <div className="main-container">
-      <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      </div>
       <h1 style={{ textAlign: 'center', marginBottom: 24 }}>Minhas tarefas</h1>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+        <Link to="/dashboard">
+          <button className="styled-input" style={{ background: '#1976d2', color: '#fff', fontWeight: 'bold' }}>Ir para Dashboard</button>
+        </Link>
+      </div>
       <input
         className="styled-input"
         value={title}

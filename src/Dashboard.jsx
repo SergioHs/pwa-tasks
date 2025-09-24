@@ -38,11 +38,14 @@ function Dashboard() {
 
     return(
         <div className="main-container">
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-            <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Dashboard - Tarefas Concluídas</h2>
+            <h1 style={{ textAlign: 'center', marginBottom: 24 }}>Dashboard</h1>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                <Link to="/">
+                    <button className="styled-input" style={{ background: '#1976d2', color: '#fff', fontWeight: 'bold' }}>Voltar para Home</button>
+                </Link>
+            </div>
             <div style={{ marginBottom: 16, textAlign: 'center' }}>
                 <span style={{ marginRight: 15 }}>Bem-vindo, {currentUser?.email}!</span>
-                <Link to="/" style={{ display: 'inline-block', marginRight: 10 }}> Voltar para Home</Link>
             </div>
             <p style={{ textAlign: 'center', fontWeight: 'bold' }}>Total de tarefas concluídas: {completedTasks.length}</p>
             <ul className="task-list">
@@ -60,6 +63,9 @@ function Dashboard() {
                 </li>
                 ))}
             </ul>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+                <button className="logout-btn" onClick={handleLogout}>Logout</button>
+            </div>
         </div>
     )
 }
