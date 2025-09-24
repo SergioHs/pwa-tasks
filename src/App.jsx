@@ -6,6 +6,8 @@ import { getGoogleCalendarUrl } from './utils/calendar'
 import { Link } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext'
 import { syncTasks } from './utils/sync'
+import OfflineIndicator from './components/OfflineIndicator'
+import { useRegisterSW } from 'virtual:pwa-register/react'
 import './App.css'
 
 function App() {
@@ -14,6 +16,20 @@ function App() {
   const [title, setTitle] = useState("");
   const [hora, setHora] = useState("");
   const [done, setDone] = useState(false);
+
+  // PWA Update Logic
+  const {
+    offlineReady: [offlineReady, setOfflineReady],
+    needRefresh: [needRefresh, setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegistered(r) {
+      console.log('SW registrado: ' + r)
+    },
+    onRegisterError(error) {
+      console.log('Erro no registro do SW', error)
+    },
+  })
 
   // Atualiza o badge do app (desktop) usando a Badges API, se suportado
   function updateAppBadge(pendingCount) {
@@ -110,6 +126,36 @@ function App() {
   
 return (
     <div className="main-container">
+      <OfflineIndicator />
+      {needRefresh && (
+        <div style={{ 
+          position: 'fixed', 
+          top: '60px', 
+          left: '0', 
+          right: '0', 
+          background: '#646cff', 
+          color: 'white', 
+          padding: '12px', 
+          textAlign: 'center', 
+          zIndex: 9998 
+        }}>
+          <span>Nova versão disponível! </span>
+          <button 
+            onClick={() => updateServiceWorker(true)}
+            style={{ 
+              background: 'white', 
+              color: '#646cff', 
+              border: 'none', 
+              borderRadius: '4px', 
+              padding: '4px 8px', 
+              marginLeft: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            Atualizar
+          </button>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
         <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>

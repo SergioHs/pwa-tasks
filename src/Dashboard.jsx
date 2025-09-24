@@ -3,6 +3,7 @@ import { getTasks } from "./utils/db";
 import { Link } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { shareTask } from "./utils/native";
+import OfflineIndicator from "./components/OfflineIndicator";
 
 
 async function handleShare(task) {
@@ -38,6 +39,7 @@ function Dashboard() {
 
     return(
         <div className="main-container">
+            <OfflineIndicator />
             <h1 style={{ textAlign: 'center', marginBottom: 24 }}>Dashboard</h1>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
                 <Link to="/">

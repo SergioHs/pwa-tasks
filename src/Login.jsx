@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { login } from './utils/firebase'
 import { Link } from "react-router-dom"
+import OfflineIndicator from "./components/OfflineIndicator"
+import { useOnlineStatus } from './hooks/useOnlineStatus'
 
 function Login(){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const { isOnline } = useOnlineStatus();
 
     async function handleLogin(e) {
         e.preventDefault();
@@ -25,6 +28,7 @@ function Login(){
 
     return (
         <>
+        <OfflineIndicator />
         <div style={{ maxWidth: 400, margin: "50px auto", padding: 20}}>
             <h2>Login</h2>
             <form onSubmit={handleLogin}>
@@ -55,16 +59,33 @@ function Login(){
             )}
             <button
                 type="submit"
-                disabled={loading}
-                style={{ width: "100%", padding: 10, fontSize: 16 }}
+                disabled={loading || !isOnline}
+                style={{ 
+                    width: "100%", 
+                    padding: 10, 
+                    fontSize: 16,
+                    opacity: !isOnline ? 0.5 : 1,
+                    cursor: !isOnline ? 'not-allowed' : 'pointer'
+                }}
+                title={!isOnline ? "Login não disponível offline" : ""}
                 >
-                {loading ? "Entrando..." : "Entrar"}
+                {loading ? "Entrando..." : !isOnline ? "Offline - Login Indisponível" : "Entrar"}
             </button>
         </form>
         </div>
 
         <p style={{ textAlign: "center", marginTop: 20 }}>
-            Não tem conta? <Link to="/cadastro">Cadastre-se</Link>
+            Não tem conta? {isOnline ? (
+                <Link to="/cadastro">Cadastre-se</Link>
+            ) : (
+                <span style={{ 
+                    color: '#999', 
+                    cursor: 'not-allowed',
+                    textDecoration: 'line-through' 
+                }} title="Cadastro não disponível offline">
+                    Cadastre-se
+                </span>
+            )}
         </p>
         
         </>
